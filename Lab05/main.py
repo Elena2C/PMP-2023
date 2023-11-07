@@ -1,23 +1,25 @@
-import pymc as pm
 import numpy as np
+import pymc as pm
 
-traffic_data = np.loadtxt('traffic.csv', delimiter=',')
+traffic_data = np.loadtxt('trafic.csv', delimiter=',', skiprows=1)
 
-intervals = [(4, 7), (7, 8), (8, 16), (16, 19), (19, 24)]
+trafic_observed = traffic_data[:, 1]
 
 with pm.Model() as model:
-    lambdas = []
-    for start, end in intervals:
-        lambda_ = pm.Uniform(f'lambda_{start}_{end}', 0, 10)
-        lambdas.append(lambda_)
+    lambda_1 = pm.Exponential('lambda_1', lam=1.0)
+    lambda_2 = pm.Exponential('lambda_2', lam=1.0)
+    lambda_3 = pm.Exponential('lambda_3', lam=1.0)
+    lambda_4 = pm.Exponential('lambda_4', lam=1.0)
+    lambda_5 = pm.Exponential('lambda_5', lam=1.0)
 
-    poisson_values = []
-    for i in range(len(intervals)):
-        start, end = intervals[i]
-        poisson = pm.Poisson(f'poisson_{start}_{end}', mu=lambdas[i], observed=traffic_data[(traffic_data[:, 0] >= start) & (traffic_data[:, 0] < end)][:, 1])
-        poisson_values.append(poisson)
+    trafic_model = pm.Poisson('trafic_model', mu=pm.math.switch(
+        traffic_data[:, 0] < 180, lambda_1, pm.math.switch(
+            traffic_data[:, 0] < 240, lambda_2, pm.math.switch(
+                traffic_data[:, 0] < 960, lambda_3, pm.math.switch(
+                    traffic_data[:, 0] < 1201, lambda_4, lambda_5
+                )
+            )
+        )
+    ), observed=trafic_observed)
 
-with model:
-    trace = pm.sample(2000, cores=2, target_accept=0.95)
-
-pm.summary(trace)
+    trace = pm.sample(2000, tune=1000, target_accept=0.9)
