@@ -1,6 +1,5 @@
 from pgmpy.models import BayesianModel
 from pgmpy.factors.discrete import TabularCPD
-from pgmpy.estimators import ParameterEstimator
 from pgmpy.inference import VariableElimination
 import numpy as np
 
@@ -14,7 +13,7 @@ data = np.zeros((20000, 4), dtype=int)
 data[:, 0] = np.random.choice([0, 1], size=20000)
 data[:, 1] = np.random.choice([0, 1], size=20000)
 data[:, 2] = np.random.choice([0, 1], size=20000)
-data[:, 3] = np.random.choice([0, 1], size=20000) 
+data[:, 3] = np.random.choice([0, 1], size=20000)
 
 cpd_player = TabularCPD(variable='Player', variable_card=2, values=[[1 / 2], [1 / 2]])
 cpd_outcome_p0 = TabularCPD(variable='Outcome_p0', variable_card=2, values=[[1 / 3, 2 / 3], [1 / 3, 2 / 3]],
