@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import pstats
+from scipy import stats
 
 
 def posterior_grid(grid_points=50, heads=6, tails=9):
@@ -8,8 +8,8 @@ def posterior_grid(grid_points=50, heads=6, tails=9):
     A grid implementation for the coin-flipping problem
     """
     grid = np.linspace(0, 1, grid_points)
-    prior = np.repeat(1/grid_points, grid_points) # uniform prior
-    likelihood = stats.geom.pmf(np.arange(1, grid_points + 1), grid)
+    prior = np.repeat(1/grid_points, grid_points)  # uniform prior
+    likelihood = stats.binom.pmf(heads, heads + tails, grid)
     posterior = likelihood * prior
     posterior /= posterior.sum()
     return grid, posterior
@@ -32,7 +32,7 @@ data = np.repeat([0, 1], (10, 3))
 h = data.sum()
 t = len(data) - h
 points = 100
-grid, posterior = posterior_grid_geometric(points, h, t)
+grid, posterior = posterior_grid(points, h, t)
 
 plot_posterior(grid, posterior, h, t)
 
